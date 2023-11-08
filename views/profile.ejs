@@ -1,0 +1,15 @@
+<%- include("partials/header")%>
+<%- include("partials/nav")%>
+
+<h2>Registered Users</h2>
+<hr>
+
+<%Users.forEach(function(user){%>
+    <h1><%=user.username%></h1>
+    <p><%= user.Email%></p>
+    <a href="/delete/<%= user._id%>">Delete</a>
+    <a href="/Update/<%= user._id%>">Update</a>
+<%})%>
+
+<%- include("partials/footer")%>
+
