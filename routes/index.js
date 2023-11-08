@@ -3,6 +3,7 @@ var router = express.Router();
 const nodemailer = require("nodemailer");
 
 const USER = require("../models/userModels")
+const USER = require("../models/postModel")
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 passport.use(new LocalStrategy(USER.authenticate()));
@@ -216,6 +217,19 @@ function isLoggedIn(req, res, next) {
   }
 }
 
+// .....................................................................................................
 
+router.get('/createpost', isLoggedIn, function (req, res, next) {
+  res.render('reset', { admin: req.user });
+});
+
+// router.post('/createpost', async function (req, res, next) {
+//   try {
+//     const post=new Post(req.body);
+//     req.user.posts.pus
+//   } catch (error) {
+//     res.send(error)
+//   }
+// });
 
 module.exports = router;
