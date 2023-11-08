@@ -182,10 +182,27 @@ router.post('/match-otp/:email', async function (req, res, next) {
 
 router.post('/resetpassword/:id', async function (req, res, next) {
   try {
-    const user= await USER.findById(req.params.id);
-    changepassword= await user.setPassword(req.body.password)
+    const user = await USER.findById(req.params.id);
+    changepassword = await user.setPassword(req.body.password)
     await user.save(changepassword)
     res.redirect("/signin")
+  } catch (error) {
+    res.send(error)
+  }
+});
+
+router.get('/reset', function (req, res, next) {
+  res.render('reset', { admin: req.user });
+});
+
+router.post('/reset', async function (req, res, next) {
+  try {
+    changepassword=await req.user.changePassword(
+      req.body.oldpassword,
+      req.body.newpassword
+    )
+    await req.user.save(changepassword);
+    res.redirect("/profile");
   } catch (error) {
     res.send(error)
   }
