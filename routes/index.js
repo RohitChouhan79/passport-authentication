@@ -117,8 +117,10 @@ router.get('/forget', function (req, res, next) {
 })
 
 router.post('/send-mail', async function (req, res, next) {
+  // console.log(req.body.email)
   try {
     const user = await USER.findOne({ email: req.body.email })
+    console.log(user)
     if (!user) return res.send("USer Not Found")
 
 
@@ -161,13 +163,33 @@ function sendmailhandler(req, user, res) {
   });
 }
 
+router.post('/match-otp/:email', async function (req, res, next) {
+  try {
+    const user = await USER.findOne({ email: req.params.email });
+    if (user.resetPasswordOtp = req.body.otp) {
+      user.resetPasswordOtp = -1;
+      await user.save();
+      res.render("Resetpassword", { admin: req.user, id: user._id })
+    } else {
+      res.send(
+        "Invalid OTP, Try Again <a href='/forget'>Forget Password</a>"
+      );
+    }
+  } catch (error) {
+    res.send(error)
+  }
+});
 
-
-
-
-
-
-
+router.post('/resetpassword/:id', async function (req, res, next) {
+  try {
+    const user= await USER.findById(req.params.id);
+    changepassword= await user.setPassword(req.body.password)
+    await user.save(changepassword)
+    res.redirect("/signin")
+  } catch (error) {
+    res.send(error)
+  }
+});
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
