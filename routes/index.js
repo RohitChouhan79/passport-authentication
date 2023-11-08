@@ -22,9 +22,6 @@ router.get('/about', function (req, res, next) {
   res.render('about', { admin: req.user });
 });
 
-router.get('/forget', function (req, res, next) {
-  res.render('forget', { admin: req.user });
-});
 
 
 router.post('/signup', async function (req, res, next) {
@@ -69,6 +66,55 @@ router.get("/signout", isLoggedIn, function (req, res, next) {
   });
 });
 
+// Read the database
+router.get('/profile', isLoggedIn, async function (req, res, next) {
+  try {
+    const Users = await USER.find();
+    res.render('profile', { Users: Users, admin: req.user });
+
+  } catch (error) {
+    res.send(error)
+  }
+});
+
+router.get('/delete/:id', isLoggedIn, async function (req, res, next) {
+  try {
+    await USER.findByIdAndDelete(req.params.id)
+    res.redirect("/profile")
+  } catch (error) {
+    res.send(error)
+  }
+});
+
+router.get('/update/:id',isLoggedIn, async function (req, res, next) {
+  try {
+    const user = await USER.findById(req.params.id)
+    res.render("update", { user: user, admin: req.user });
+  } catch (error) {
+    res.send(error)
+  }
+});
+
+router.post('/update/:id',isLoggedIn, async function (req, res, next) {
+  try {
+    await USER.findByIdAndUpdate(req.params.id, req.body);
+    res.redirect("/profile");
+  } catch (error) {
+    res.send(error)
+  }
+});
+
+router.post('/search', isLoggedIn, async function (req, res, next) {
+  try {
+    const User=await USER.findOne({username: req.body.username})
+  } catch (error) {
+    res.send(error)
+  }
+});
+
+router.get('/forget', function (req, res, next) {
+  res.render('forget', { admin: req.user });
+})
 
 router.post('/send-mail', async function (req, res, next) {
   try {
@@ -117,43 +163,7 @@ function sendmailhandler(email, otp, res) {
 
 
 
-// Read the database
-router.get('/profile', async function (req, res, next) {
-  try {
-    const Users = await USER.find();
-    res.render('profile', { Users: Users, admin: req.user });
 
-  } catch (error) {
-    res.send(error)
-  }
-});
-
-router.get('/delete/:id', async function (req, res, next) {
-  try {
-    await USER.findByIdAndDelete(req.params.id)
-    res.redirect("/profile")
-  } catch (error) {
-    res.send(error)
-  }
-});
-
-router.get('/update/:id', async function (req, res, next) {
-  try {
-    const user = await USER.findById(req.params.id)
-    res.render("update", { user: user, admin: req.user });
-  } catch (error) {
-    res.send(error)
-  }
-});
-
-router.post('/update/:id', async function (req, res, next) {
-  try {
-    await USER.findByIdAndUpdate(req.params.id, req.body);
-    res.redirect("/profile");
-  } catch (error) {
-    res.send(error)
-  }
-});
 
 
 
