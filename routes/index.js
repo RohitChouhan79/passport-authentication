@@ -86,7 +86,7 @@ router.get('/delete/:id', isLoggedIn, async function (req, res, next) {
   }
 });
 
-router.get('/update/:id',isLoggedIn, async function (req, res, next) {
+router.get('/update/:id', isLoggedIn, async function (req, res, next) {
   try {
     const user = await USER.findById(req.params.id)
     res.render("update", { user: user, admin: req.user });
@@ -95,7 +95,7 @@ router.get('/update/:id',isLoggedIn, async function (req, res, next) {
   }
 });
 
-router.post('/update/:id',isLoggedIn, async function (req, res, next) {
+router.post('/update/:id', isLoggedIn, async function (req, res, next) {
   try {
     await USER.findByIdAndUpdate(req.params.id, req.body);
     res.redirect("/profile");
@@ -106,7 +106,7 @@ router.post('/update/:id',isLoggedIn, async function (req, res, next) {
 
 router.post('/search', isLoggedIn, async function (req, res, next) {
   try {
-    const User=await USER.findOne({username: req.body.username})
+    const User = await USER.findOne({ username: req.body.username })
   } catch (error) {
     res.send(error)
   }
@@ -120,17 +120,17 @@ router.post('/send-mail', async function (req, res, next) {
   try {
     const user = await USER.findOne({ email: req.body.email })
     if (!user) return res.send("USer Not Found")
-    const otp = Math.floor(1000 + Math.random() * 9000);
-    user.resetPasswordOtp = otp;
-    await user.save();
-    sendmailhandler(user.email,otp,res)
-  } catch (error) {
 
+
+    sendmailhandler(req, user, res)
+  } catch (error) {
+    res.send(error)
   }
 
 });
 
-function sendmailhandler(email, otp, res) {
+function sendmailhandler(req, user, res) {
+  const otp = Math.floor(1000 + Math.random() * 9000);
   const transport = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 465,
@@ -144,7 +144,7 @@ function sendmailhandler(email, otp, res) {
   // receiver mailing info
   const mailOptions = {
     from: "Devloper_pvt.limited<rohitbanna101@gmail.com>",
-    to: email,
+    to: user.email,
     subject: "Testing Mail Service",
     // text: req.body.message,
     html: `<h1>Your OTP iS ${otp} </h1>`,
@@ -153,9 +153,11 @@ function sendmailhandler(email, otp, res) {
   transport.sendMail(mailOptions, (err, info) => {
     if (err) return res.send(err);
     // console.log(info);
-    return res.send(
-      "<h1 style='text-align:center;color: tomato; margin-top:10%'><span style='font-size:60px;'>✔️</span> <br />Email Sent! Check your inbox , <br/>check spam in case not found in inbox.</h1>"
-    );
+    user.resetPasswordOtp = otp;
+    user.save();
+    res.render("otp", { admin: req.user, email: user.email });
+    // console.log(info);
+
   });
 }
 
