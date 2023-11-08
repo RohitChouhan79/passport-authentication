@@ -6,7 +6,7 @@
 
 <%Users.forEach(function(user){%>
     <h1><%=user.username%></h1>
-    <p><%= user.Email%></p>
+    <p><%= user.email%></p>
     <a href="/delete/<%= user._id%>">Delete</a>
     <a href="/Update/<%= user._id%>">Update</a>
 <%})%>

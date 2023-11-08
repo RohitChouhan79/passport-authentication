@@ -26,6 +26,50 @@ router.get('/forget', function (req, res, next) {
   res.render('forget', { admin: req.user });
 });
 
+
+router.post('/signup', async function (req, res, next) {
+
+  try {
+    await USER.register(
+      { username: req.body.username, email: req.body.email },
+      req.body.password
+    );
+    res.redirect("/signin");
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+
+});
+
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    res.redirect("/signin");
+  }
+}
+
+router.get('/signin', function (req, res, next) {
+  res.render('login', { admin: req.user });
+});
+
+router.post(
+  "/signin",
+  passport.authenticate("local", {
+    successRedirect: "/profile",
+    failureRedirect: "/signin",
+  }),
+  function (req, res, next) { }
+)
+
+router.get("/signout", isLoggedIn, function (req, res, next) {
+  req.logout(() => {
+    res.redirect("/signin");
+  });
+});
+
+
 router.post('/send-mail', async function (req, res, next) {
   try {
     const user = await USER.findOne({ email: req.body.email })
@@ -71,20 +115,7 @@ function sendmailhandler(email, otp, res) {
 
 
 
-router.post('/signup', async function (req, res, next) {
 
-  try {
-    await USER.register(
-      { username: req.body.username, email: req.body.email },
-      req.body.password
-    );
-    res.redirect("/signin");
-  } catch (error) {
-    console.log(error);
-    res.send(error);
-  }
-
-});
 
 // Read the database
 router.get('/profile', async function (req, res, next) {
@@ -124,18 +155,7 @@ router.post('/update/:id', async function (req, res, next) {
   }
 });
 
-router.get('/signin', function (req, res, next) {
-  res.render('login', { admin: req.user });
-});
 
-router.post(
-  "/signin",
-  passport.authenticate("local", {
-    successRedirect: "/profile",
-    failureRedirect: "/signin",
-  }),
-  function (req, res, next) { }
-)
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
@@ -144,12 +164,6 @@ function isLoggedIn(req, res, next) {
     res.redirect("/signin");
   }
 }
-
-router.get("/signout", isLoggedIn, function (req, res, next) {
-  req.logout(() => {
-    res.redirect("/signin");
-  });
-});
 
 
 
