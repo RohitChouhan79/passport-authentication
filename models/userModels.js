@@ -26,6 +26,7 @@ const userModels= new mongoose.Schema({
         type: Number,
         default: -1,
     },
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "post" }],
 });
 
 // userModels.plugin(plm,{usernameField:'email'})

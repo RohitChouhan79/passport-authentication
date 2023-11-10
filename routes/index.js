@@ -3,7 +3,7 @@ var router = express.Router();
 const nodemailer = require("nodemailer");
 
 const USER = require("../models/userModels")
-const USER = require("../models/postModel")
+const Post = require("../models/postModel")
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 passport.use(new LocalStrategy(USER.authenticate()));
@@ -70,11 +70,15 @@ router.get("/signout", isLoggedIn, function (req, res, next) {
 // Read the database
 router.get('/profile', isLoggedIn, async function (req, res, next) {
   try {
-    const Users = await USER.find();
-    res.render('profile', { Users: Users, admin: req.user });
+    // const Users = await USER.find();
+    // res.render('profile', { Users: Users, admin: req.user });
+    const user = await req.user.populate("posts");
+    console.log(user.posts);
+    res.render("profile", { admin: req.user, posts: user.posts });
 
   } catch (error) {
     res.send(error)
+    console.log(error)
   }
 });
 
@@ -198,7 +202,7 @@ router.get('/reset', function (req, res, next) {
 
 router.post('/reset', async function (req, res, next) {
   try {
-    changepassword=await req.user.changePassword(
+    changepassword = await req.user.changePassword(
       req.body.oldpassword,
       req.body.newpassword
     )
@@ -220,16 +224,28 @@ function isLoggedIn(req, res, next) {
 // .....................................................................................................
 
 router.get('/createpost', isLoggedIn, function (req, res, next) {
-  res.render('reset', { admin: req.user });
+  res.render('createpost', { admin: req.user });
 });
 
-// router.post('/createpost', async function (req, res, next) {
-//   try {
-//     const post=new Post(req.body);
-//     req.user.posts.pus
-//   } catch (error) {
-//     res.send(error)
-//   }
+router.post('/createpost', isLoggedIn, async function (req, res, next) {
+  try {
+    const post = new Post(req.body);
+    req.user.posts.push(post._id)
+    post.User = req.user._id;
+    // res.json(post);
+    await post.save();
+    await req.user.save();
+    res.redirect("/profile");
+  } catch (error) {
+    res.send(error)
+    console.log(error)
+  }
+});
+
+// router.get('/deletepost/:id', isLoggedIn, async function (req, res, next) {
+//   indexpost=in
 // });
+
+
 
 module.exports = router;

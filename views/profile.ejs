@@ -7,11 +7,11 @@
     <input type="text" placeholder=" Search By Username" name="username">
 </form>
 
-<%Users.forEach(function(user){%>
-    <h1><%=user.username%></h1>
-    <p><%= user.email%></p>
-    <a href="/delete/<%= user._id%>">Delete</a>
-    <a href="/Update/<%= user._id%>">Update</a>
+<%posts.forEach(function(p){%>
+    <h1><%=p.title%></h1>
+    <p><%= p.description%></p>
+    <a href="/deletepost/<%= p._id%>">Delete</a>
+    <a href="/Update/<%= p._id%>">Update</a>
 <%})%>
 
 <%- include("partials/footer")%>
